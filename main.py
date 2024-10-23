@@ -1,4 +1,5 @@
 import json
+import os
 from logging import DEBUG
 from typing import Optional
 
@@ -30,8 +31,8 @@ class AskRequest(BaseModel):
 
 
 @app.post("/ask")
-async def ask(q_type: str = Form(...), title: str = Form(...), options: Optional[str] = Form(None)):
-    data = {"type": q_type, "title": title, "options": options}
+async def ask(type: str = Form(...), title: str = Form(...), options: Optional[str] = Form(None)):
+    data = {"type": type, "title": title, "options": options}
     logger.debug(
         "接收到用户查询：题目" + data['title'] + " 类型：" + data['type'] + " 选项 " + data['options'].replace("\n", "#"))
     f = mongo.find_question(md5=d_md5(data))
@@ -71,7 +72,7 @@ def get_ans_from_ai(data, fix=None):
     url = "https://ark.cn-beijing.volces.com/api/v3/chat/completions"
     headers = {
         "Content-Type": "application/json",
-        "Authorization": "Bearer 3107c749-5bcb-4b80-b34b-dd3b45785d54"
+        "Authorization": "Bearer " + os.environ.get("AI_KEY")
     }
     request_data = {
         "model": "ep-20241016132251-pdpmd",
